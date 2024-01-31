@@ -1,0 +1,10 @@
+{
+  "name": "file-manager",
+  "version": "0.0.0",
+  "description": "basic file manager",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "author": "iharaleynikau",
+  "license": "ISC"
+}
