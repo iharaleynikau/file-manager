@@ -1,16 +1,13 @@
-import os from 'node:os';
 import { promises, stat } from 'node:fs';
 
-const ls = async () => {
-  const list = await promises.readdir(os.homedir());
-
-  const path = os.homedir() + '/';
+const ls = async path => {
+  const list = await promises.readdir(path);
 
   const listData = new Set();
 
   for (let listItem of list) {
     const listItemData = new Promise((resolve, reject) => {
-      stat(path + listItem, (err, stats) => {
+      stat(path + '/' + listItem, (err, stats) => {
         resolve({
           Name: listItem,
           Type: stats.isFile() ? 'file' : 'directory'

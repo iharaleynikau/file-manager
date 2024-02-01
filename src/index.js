@@ -1,14 +1,18 @@
 import readline from 'node:readline';
 import os from 'node:os';
 import ls from './commands/ls.js';
+import up from './commands/navigation/up.js';
+import path from 'node:path';
 
 const fileManager = async () => {
   const args = process.argv.slice(2);
 
   const userName = !args[0] ? 'username' : args[0].split('--username=').join('');
 
+  let currentPath = os.homedir();
+
   console.log(`Welcome to the File Manager, ${userName}!`);
-  console.log(`You are currently in ${os.homedir()}\n`);
+  console.log(`You are currently in ${currentPath}\n`);
 
   const readInput = readline.createInterface({
     input: process.stdin,
@@ -18,9 +22,9 @@ const fileManager = async () => {
 
   const exitText = `Thank you for using File Manager, ${userName}, goodbye!`;
 
-  const list = await ls();
+  readInput.on('line', async line => {
+    const list = await ls(currentPath);
 
-  readInput.on('line', line => {
     switch (line) {
       case 'ls':
         console.table(
@@ -32,7 +36,12 @@ const fileManager = async () => {
           })
         );
 
-        console.log(`\nYou are currently in ${os.homedir()}\n`);
+        console.log(`You are currently in ${currentPath}\n`);
+        break;
+
+      case 'up':
+        currentPath = up(currentPath);
+        console.log(`You are currently in ${currentPath}\n`);
         break;
 
       case '.exit':
