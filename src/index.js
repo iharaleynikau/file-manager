@@ -23,7 +23,16 @@ const fileManager = async () => {
   readInput.on('line', line => {
     switch (line) {
       case 'ls':
-        console.log(list);
+        console.table(
+          list.map(item => {
+            return {
+              Name: item.Name,
+              Type: item.Type
+            };
+          })
+        );
+
+        console.log(`\nYou are currently in ${os.homedir()}\n`);
         break;
 
       case '.exit':

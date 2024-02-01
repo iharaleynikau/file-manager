@@ -12,8 +12,8 @@ const ls = async () => {
     const listItemData = new Promise((resolve, reject) => {
       stat(path + listItem, (err, stats) => {
         resolve({
-          name: listItem,
-          type: stats.isFile() ? 'file' : 'directory'
+          Name: listItem,
+          Type: stats.isFile() ? 'file' : 'directory'
         });
       });
     });
@@ -28,22 +28,17 @@ const ls = async () => {
   });
 
   const sortByFiles = resultToSort.filter(item => {
-    return item.type === 'file';
+    return item.Type === 'file';
   });
 
   const sortByDirs = resultToSort.filter(item => {
-    return item.type === 'directory';
+    return item.Type === 'directory';
   });
 
-  sortByFiles.sort((a, b) => a.name.localeCompare(a.name));
-  sortByDirs.sort((a, b) => a.name.localeCompare(a.name));
+  sortByFiles.sort((a, b) => a.Name.localeCompare(a.Name));
+  sortByDirs.sort((a, b) => a.Name.localeCompare(a.Name));
 
-  const result = [...sortByDirs, ...sortByFiles].map((item, index) => {
-    return {
-      ...item,
-      index
-    };
-  });
+  const result = [...sortByDirs, ...sortByFiles];
 
   return result;
 };
