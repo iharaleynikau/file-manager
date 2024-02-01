@@ -5,6 +5,7 @@
   "scripts": {
     "start": "node src/index.js"
   },
+  "type": "module",
   "author": "iharaleynikau",
   "license": "ISC"
 }
