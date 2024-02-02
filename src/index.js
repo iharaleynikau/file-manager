@@ -1,8 +1,7 @@
 import readline from 'node:readline';
 import os from 'node:os';
-import ls from './commands/ls.js';
+import ls from './commands/navigation/ls.js';
 import up from './commands/navigation/up.js';
-import path from 'node:path';
 
 const fileManager = async () => {
   const args = process.argv.slice(2);

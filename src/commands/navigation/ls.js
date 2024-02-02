@@ -7,7 +7,7 @@ const ls = async path => {
 
   for (let listItem of list) {
     const listItemData = new Promise((resolve, reject) => {
-      stat(path + '/' + listItem, (err, stats) => {
+      stat(`${path}/${listItem}`, (err, stats) => {
         resolve({
           Name: listItem,
           Type: stats.isFile() ? 'file' : 'directory'
