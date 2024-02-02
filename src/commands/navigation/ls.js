@@ -1,4 +1,5 @@
 import { promises, stat } from 'node:fs';
+import { getItemInfo } from '../../utils.js';
 
 const ls = async path => {
   const list = await promises.readdir(path);
@@ -6,14 +7,7 @@ const ls = async path => {
   const listData = new Set();
 
   for (let listItem of list) {
-    const listItemData = new Promise((resolve, reject) => {
-      stat(`${path}/${listItem}`, (err, stats) => {
-        resolve({
-          Name: listItem,
-          Type: stats.isFile() ? 'file' : 'directory'
-        });
-      });
-    });
+    const listItemData = await getItemInfo(path, listItem);
 
     listData.add(listItemData);
   }
