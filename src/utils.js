@@ -1,4 +1,7 @@
 import { stat, promises, constants } from 'node:fs';
+import path from 'node:path';
+
+const nodePath = path;
 
 const doesExist = async path => {
   try {
@@ -9,8 +12,8 @@ const doesExist = async path => {
   }
 };
 
-export const getItemInfo = async (path, item) => {
-  const isExisting = await doesExist(path + '/' + item);
+export const getItemInfo = async path => {
+  const isExisting = await doesExist(path);
 
   if (!isExisting) {
     return {
@@ -20,9 +23,9 @@ export const getItemInfo = async (path, item) => {
   }
 
   return new Promise((resolve, reject) => {
-    stat(`${path}/${item}`, (err, stats) => {
+    stat(path, (err, stats) => {
       resolve({
-        Name: item,
+        Name: nodePath.basename(path),
         Type: stats.isFile() ? 'file' : 'directory'
       });
     });

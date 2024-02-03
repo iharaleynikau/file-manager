@@ -7,7 +7,7 @@ const ls = async path => {
   const listData = new Set();
 
   for (let listItem of list) {
-    const listItemData = await getItemInfo(path, listItem);
+    const listItemData = await getItemInfo(path + '/' + listItem);
 
     listData.add(listItemData);
   }

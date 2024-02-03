@@ -6,6 +6,8 @@ import up from './commands/navigation/up.js';
 import cd from './commands/navigation/cd.js';
 // os info
 import osInfo from './commands/osInfo/osInfo.js';
+// hash
+import calculateHash from './commands/hash/hash.js';
 
 const fileManager = async () => {
   const args = process.argv.slice(2);
@@ -41,6 +43,25 @@ const fileManager = async () => {
           console.log(complitePathText);
         }
 
+        break;
+
+      case 'hash':
+        if (line.split(' ').length < 2 || line.split(' ')[1] === '') {
+          console.log('Operation failed\n' + complitePathText);
+        } else {
+          const arg = line.split(' ').slice(1)[0];
+
+          if (arg.startsWith('/')) {
+            const hash = await calculateHash(arg);
+            console.log(hash);
+            console.log(complitePathText);
+          } else {
+            const hash = await calculateHash(currentPath + '/' + arg);
+
+            console.log(hash);
+            console.log(complitePathText);
+          }
+        }
         break;
 
       case 'cd':
