@@ -25,52 +25,50 @@ const fileManager = async () => {
 
   readInput.on('line', async line => {
     const list = await ls(currentPath);
+    const complitePathText = currentPathText + currentPath + '\n';
 
-    if (line.split(' ')[0] === 'cd') {
-      const complitePathText = currentPathText + currentPath + '\n';
+    switch (line.split(' ')[0]) {
+      case 'cd':
+        if (line.split(' ').length < 2 || line.split(' ')[1] === '') {
+          console.log('Operation failed\n' + complitePathText);
+        } else {
+          const arg = line.split(' ').slice(1);
 
-      if (line.split(' ').length < 2 || line.split(' ')[1] === '') {
-        console.log('Operation failed\n' + complitePathText);
-      } else {
-        const arg = line.split(' ').slice(1);
-
-        const step = await cd(currentPath, arg);
-        currentPath = step.type === 'error' ? currentPath : step.result;
-        console.log(
-          step.type === 'error'
-            ? 'Operation failed\n' + complitePathText
-            : currentPathText + step.result + '\n'
-        );
-      }
-    } else {
-      switch (line) {
-        case 'ls':
-          console.table(
-            list.map(item => {
-              return {
-                Name: item.Name,
-                Type: item.Type
-              };
-            })
+          const step = await cd(currentPath, arg);
+          currentPath = step.type === 'error' ? currentPath : step.result;
+          console.log(
+            step.type === 'error'
+              ? 'Operation failed\n' + complitePathText
+              : currentPathText + step.result + '\n'
           );
+        }
+        break;
 
-          console.log(currentPathText + currentPath + '\n');
-          break;
+      case 'ls':
+        console.table(
+          list.map(item => {
+            return {
+              Name: item.Name,
+              Type: item.Type
+            };
+          })
+        );
 
-        case 'up':
-          currentPath = up(currentPath);
-          console.log(currentPathText + currentPath + '\n');
-          break;
+        console.log(currentPathText + currentPath + '\n');
+        break;
 
-        case '.exit':
-          console.log(exitText);
-          process.exit();
-          break;
+      case 'up':
+        currentPath = up(currentPath);
+        console.log(currentPathText + currentPath + '\n');
+        break;
 
-        default:
-          console.log('Invalid input\n');
-          break;
-      }
+      case '.exit':
+        console.log(exitText);
+        process.exit();
+
+      default:
+        console.log('Invalid input\n');
+        break;
     }
   });
 

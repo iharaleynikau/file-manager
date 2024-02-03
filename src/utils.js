@@ -14,7 +14,7 @@ export const getItemInfo = async (path, item) => {
 
   if (!isExisting) {
     return {
-      Name: item,
+      Name: 'file does not exist',
       Type: null
     };
   }
