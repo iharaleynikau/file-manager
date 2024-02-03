@@ -1,8 +1,11 @@
 import readline from 'node:readline';
 import os from 'node:os';
+// navigation
 import ls from './commands/navigation/ls.js';
 import up from './commands/navigation/up.js';
 import cd from './commands/navigation/cd.js';
+// os info
+import osInfo from './commands/osInfo/osInfo.js';
 
 const fileManager = async () => {
   const args = process.argv.slice(2);
@@ -28,6 +31,18 @@ const fileManager = async () => {
     const complitePathText = currentPathText + currentPath + '\n';
 
     switch (line.split(' ')[0]) {
+      case 'os':
+        if (line.split(' ').length < 2 || line.split(' ')[1] === '') {
+          console.log('Operation failed\n' + complitePathText);
+        } else {
+          const arg = line.split(' ').slice(1)[0].split('--')[1];
+
+          osInfo(arg);
+          console.log(complitePathText);
+        }
+
+        break;
+
       case 'cd':
         if (line.split(' ').length < 2 || line.split(' ')[1] === '') {
           console.log('Operation failed\n' + complitePathText);
