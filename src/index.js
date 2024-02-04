@@ -8,6 +8,13 @@ import cd from './commands/navigation/cd.js';
 import osInfo from './commands/osInfo/osInfo.js';
 // hash
 import calculateHash from './commands/hash/hash.js';
+// basic operations
+import cat from './commands/basicOperations/cat.js';
+import create from './commands/basicOperations/create.js';
+import remove from './commands/basicOperations/delete.js';
+import rename from './commands/basicOperations/rename.js';
+import copy from './commands/basicOperations/copy.js';
+import move from './commands/basicOperations/move.js';
 
 const fileManager = async () => {
   const args = process.argv.slice(2);
@@ -33,6 +40,105 @@ const fileManager = async () => {
     const complitePathText = currentPathText + currentPath + '\n';
 
     switch (line.split(' ')[0]) {
+      case 'mv':
+        if (line.split(' ').length < 3) {
+          console.log('Operation failed\n' + complitePathText);
+        } else {
+          const arg1 = line.split(' ').slice(1)[0];
+          const arg2 = line.split(' ').slice(1)[1];
+
+          const moveFile = await move(
+            arg1.startsWith('/') ? arg1 : `${currentPath}/${arg1}`,
+            arg2.startsWith('/') ? arg2 : `${currentPath}/${arg2}`
+          );
+
+          console.log(moveFile);
+          console.log(complitePathText);
+        }
+
+        break;
+
+      case 'cp':
+        if (line.split(' ').length < 3) {
+          console.log('Operation failed\n' + complitePathText);
+        } else {
+          const arg1 = line.split(' ').slice(1)[0];
+          const arg2 = line.split(' ').slice(1)[1];
+
+          const copyFile = await copy(
+            arg1.startsWith('/') ? arg1 : `${currentPath}/${arg1}`,
+            arg2.startsWith('/') ? arg2 : `${currentPath}/${arg2}`
+          );
+
+          console.log(copyFile);
+          console.log(complitePathText);
+        }
+        break;
+
+      case 'rn':
+        if (line.split(' ').length < 3 || line.split(' ')[1] === '') {
+          console.log('Operation failed\n' + complitePathText);
+        } else {
+          const arg1 = line.split(' ').slice(1)[0];
+          const arg2 = line.split(' ').slice(1)[1];
+
+          console.log(arg1, arg2);
+
+          const renameFile = await rename(
+            arg1.startsWith('/') ? arg1 : `${currentPath}/${arg1}`,
+            arg2.startsWith('/') ? arg2 : `${currentPath}/${arg2}`
+          );
+
+          console.log(renameFile);
+          console.log(complitePathText);
+        }
+
+        break;
+      case 'rm':
+        if (line.split(' ').length < 2 || line.split(' ')[1] === '') {
+          console.log('Operation failed\n' + complitePathText);
+        } else {
+          const arg = line.split(' ').slice(1)[0];
+
+          const removeFile = await remove(arg.startsWith('/') ? arg : `${currentPath}/${arg}`);
+
+          console.log(removeFile);
+          console.log(complitePathText);
+        }
+        break;
+
+      case 'add':
+        if (line.split(' ').length < 2 || line.split(' ')[1] === '') {
+          console.log('Operation failed\n' + complitePathText);
+        } else {
+          const arg = line.split(' ').slice(1)[0];
+
+          const createFile = await create(currentPath, arg);
+
+          console.log(createFile);
+          console.log(complitePathText);
+        }
+
+        break;
+
+      case 'cat':
+        if (line.split(' ').length < 2 || line.split(' ')[1] === '') {
+          console.log('Operation failed\n' + complitePathText);
+        } else {
+          const arg = line.split(' ').slice(1)[0];
+
+          if (arg.startsWith('/')) {
+            const readFile = await cat(arg);
+            console.log(readFile);
+            console.log(complitePathText);
+          } else {
+            const readFile = await cat(currentPath + '/' + arg);
+            console.log(readFile);
+            console.log(complitePathText);
+          }
+        }
+        break;
+
       case 'os':
         if (line.split(' ').length < 2 || line.split(' ')[1] === '') {
           console.log('Operation failed\n' + complitePathText);
