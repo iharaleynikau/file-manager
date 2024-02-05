@@ -56,6 +56,26 @@ const fileManager = async () => {
     const arg2 = line.split(' ').slice(1)[1];
 
     switch (command) {
+      case 'compress':
+        if (checkCommandArgsLength(3)) {
+          showError();
+        } else {
+          const compressFile = await compress(checkIsPathAbsolute(arg1), checkIsPathAbsolute(arg2));
+
+          showResult(compressFile);
+        }
+        break;
+
+      case 'decompress':
+        if (checkCommandArgsLength(3)) {
+          showError();
+        } else {
+          const decompressFile = await decompress(checkIsPathAbsolute(arg1), checkIsPathAbsolute(arg2));
+
+          showResult(decompressFile);
+        }
+        break;
+
       case 'mv':
         if (checkCommandArgsLength(3)) {
           showError();
