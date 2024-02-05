@@ -1,19 +1,17 @@
 import { stat, promises, constants } from 'node:fs';
 import path from 'node:path';
 
-const nodePath = path;
-
-const doesExist = async path => {
+const doesExist = async itemPath => {
   try {
-    await promises.access(path, constants.F_OK);
+    await promises.access(itemPath, constants.F_OK);
     return true;
   } catch (err) {
     return false;
   }
 };
 
-export const getItemInfo = async path => {
-  const isExisting = await doesExist(path);
+export const getItemInfo = async itemPath => {
+  const isExisting = await doesExist(itemPath);
 
   if (!isExisting) {
     return {
@@ -23,11 +21,15 @@ export const getItemInfo = async path => {
   }
 
   return new Promise((resolve, reject) => {
-    stat(path, (err, stats) => {
+    stat(itemPath, (err, stats) => {
       resolve({
-        Name: nodePath.basename(path),
+        Name: path.basename(itemPath),
         Type: stats.isFile() ? 'file' : 'directory'
       });
     });
   });
+};
+
+export const outputMessages = {
+  error: 'Operation failed'
 };

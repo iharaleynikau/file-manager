@@ -1,11 +1,11 @@
 import { createReadStream, createWriteStream } from 'node:fs';
-import { getItemInfo } from '../../utils.js';
+import { getItemInfo, outputMessages } from '../../utils.js';
 
 const copy = async (path, pathForCopy) => {
   const fileInfo = await getItemInfo(path);
 
   if (fileInfo.Type !== 'file' || path === pathForCopy) {
-    return 'Operation failed';
+    return outputMessages.error;
   }
 
   try {
@@ -16,7 +16,7 @@ const copy = async (path, pathForCopy) => {
 
     return 'File has been copied into ' + pathForCopy;
   } catch (error) {
-    return 'Operation failed';
+    return outputMessages.error;
   }
 };
 

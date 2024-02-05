@@ -1,4 +1,5 @@
-import { promises, stat } from 'node:fs';
+import { promises } from 'node:fs';
+import * as node_path from 'node:path';
 import { getItemInfo } from '../../utils.js';
 
 const ls = async path => {
@@ -7,7 +8,7 @@ const ls = async path => {
   const listData = new Set();
 
   for (let listItem of list) {
-    const listItemData = await getItemInfo(path + '/' + listItem);
+    const listItemData = await getItemInfo(node_path.join(path, listItem));
 
     listData.add(listItemData);
   }
@@ -26,8 +27,8 @@ const ls = async path => {
     return item.Type === 'directory';
   });
 
-  sortByFiles.sort((a, b) => a.Name.localeCompare(a.Name));
-  sortByDirs.sort((a, b) => a.Name.localeCompare(a.Name));
+  sortByFiles.sort((a, b) => a.Name.localeCompare(b.Name));
+  sortByDirs.sort((a, b) => a.Name.localeCompare(b.Name));
 
   const result = [...sortByDirs, ...sortByFiles];
 

@@ -1,21 +1,13 @@
-import { getItemInfo } from '../../utils.js';
+import { getItemInfo, outputMessages } from '../../utils.js';
 
-const cd = async (path, dir) => {
-  const resultPath = path + '/' + dir;
+const cd = async path => {
+  const pathInfo = await getItemInfo(path);
 
-  const type = await getItemInfo(resultPath);
-
-  if (type.Type === 'file' || type.Type === null) {
-    return {
-      type: 'error',
-      result: null
-    };
-  } else {
-    return {
-      type: 'success',
-      result: resultPath
-    };
+  if (pathInfo.Type !== 'directory') {
+    return outputMessages.error;
   }
+
+  return path;
 };
 
 export default cd;

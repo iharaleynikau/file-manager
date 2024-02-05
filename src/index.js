@@ -1,20 +1,26 @@
 import readline from 'node:readline';
 import os from 'node:os';
+import path from 'node:path';
+// utils
+import { outputMessages } from './utils.js';
 // navigation
 import ls from './commands/navigation/ls.js';
 import up from './commands/navigation/up.js';
 import cd from './commands/navigation/cd.js';
 // os info
-import osInfo from './commands/osInfo/osInfo.js';
+import osInfo from './commands/os_info/osInfo.js';
 // hash
 import calculateHash from './commands/hash/hash.js';
 // basic operations
-import cat from './commands/basicOperations/cat.js';
-import create from './commands/basicOperations/create.js';
-import remove from './commands/basicOperations/delete.js';
-import rename from './commands/basicOperations/rename.js';
-import copy from './commands/basicOperations/copy.js';
-import move from './commands/basicOperations/move.js';
+import cat from './commands/basic_operations/cat.js';
+import create from './commands/basic_operations/create.js';
+import remove from './commands/basic_operations/delete.js';
+import rename from './commands/basic_operations/rename.js';
+import copy from './commands/basic_operations/copy.js';
+import move from './commands/basic_operations/move.js';
+// brotli compress/decompress
+import compress from './commands/compress/compress.js';
+import decompress from './commands/compress/decompress.js';
 
 const fileManager = async () => {
   const args = process.argv.slice(2);
@@ -22,7 +28,6 @@ const fileManager = async () => {
   const userName = !args[0] ? 'username' : args[0].split('--username=').join('');
 
   let currentPath = os.homedir();
-  const currentPathText = `You are currently in `;
 
   console.log(`Welcome to the File Manager, ${userName}!`);
   console.log(`You are currently in ${currentPath}\n`);
@@ -36,157 +41,117 @@ const fileManager = async () => {
   const exitText = `Thank you for using File Manager, ${userName}, goodbye!`;
 
   readInput.on('line', async line => {
-    const list = await ls(currentPath);
-    const complitePathText = currentPathText + currentPath + '\n';
+    const command = line.split(' ')[0];
 
-    switch (line.split(' ')[0]) {
+    const checkCommandArgsLength = num => Boolean(line.split(' ').length < num);
+
+    const checkIsPathAbsolute = arg => (path.isAbsolute(arg) ? arg : path.join(currentPath, arg));
+
+    const complitePathText = currentPath => `You are currently in ${currentPath}\n`;
+
+    const showResult = result => process.stdout.write(`${result}\n${complitePathText(currentPath)}\n`);
+    const showError = () => process.stdout.write('Operation failed\n' + complitePathText(currentPath));
+
+    const arg1 = line.split(' ').slice(1)[0];
+    const arg2 = line.split(' ').slice(1)[1];
+
+    switch (command) {
       case 'mv':
-        if (line.split(' ').length < 3) {
-          console.log('Operation failed\n' + complitePathText);
+        if (checkCommandArgsLength(3)) {
+          showError();
         } else {
-          const arg1 = line.split(' ').slice(1)[0];
-          const arg2 = line.split(' ').slice(1)[1];
+          const moveFile = await move(checkIsPathAbsolute(arg1), checkIsPathAbsolute(arg2));
 
-          const moveFile = await move(
-            arg1.startsWith('/') ? arg1 : `${currentPath}/${arg1}`,
-            arg2.startsWith('/') ? arg2 : `${currentPath}/${arg2}`
-          );
-
-          console.log(moveFile);
-          console.log(complitePathText);
+          showResult(moveFile);
         }
 
         break;
 
       case 'cp':
-        if (line.split(' ').length < 3) {
-          console.log('Operation failed\n' + complitePathText);
+        if (checkCommandArgsLength(3)) {
+          showError();
         } else {
-          const arg1 = line.split(' ').slice(1)[0];
-          const arg2 = line.split(' ').slice(1)[1];
+          const copyFile = await copy(checkIsPathAbsolute(arg1), checkIsPathAbsolute(arg2));
 
-          const copyFile = await copy(
-            arg1.startsWith('/') ? arg1 : `${currentPath}/${arg1}`,
-            arg2.startsWith('/') ? arg2 : `${currentPath}/${arg2}`
-          );
-
-          console.log(copyFile);
-          console.log(complitePathText);
+          showResult(copyFile);
         }
         break;
 
       case 'rn':
-        if (line.split(' ').length < 3 || line.split(' ')[1] === '') {
-          console.log('Operation failed\n' + complitePathText);
+        if (checkCommandArgsLength(3)) {
+          showError();
         } else {
-          const arg1 = line.split(' ').slice(1)[0];
-          const arg2 = line.split(' ').slice(1)[1];
+          const renameFile = await rename(checkIsPathAbsolute(arg1), checkIsPathAbsolute(arg2));
 
-          console.log(arg1, arg2);
-
-          const renameFile = await rename(
-            arg1.startsWith('/') ? arg1 : `${currentPath}/${arg1}`,
-            arg2.startsWith('/') ? arg2 : `${currentPath}/${arg2}`
-          );
-
-          console.log(renameFile);
-          console.log(complitePathText);
+          showResult(renameFile);
         }
 
         break;
       case 'rm':
-        if (line.split(' ').length < 2 || line.split(' ')[1] === '') {
-          console.log('Operation failed\n' + complitePathText);
+        if (checkCommandArgsLength(2)) {
+          showError();
         } else {
-          const arg = line.split(' ').slice(1)[0];
+          const removeFile = await remove(checkIsPathAbsolute(arg1));
 
-          const removeFile = await remove(arg.startsWith('/') ? arg : `${currentPath}/${arg}`);
-
-          console.log(removeFile);
-          console.log(complitePathText);
+          showResult(removeFile);
         }
         break;
 
       case 'add':
-        if (line.split(' ').length < 2 || line.split(' ')[1] === '') {
-          console.log('Operation failed\n' + complitePathText);
+        if (checkCommandArgsLength(2)) {
+          showError();
         } else {
-          const arg = line.split(' ').slice(1)[0];
+          const createFile = await create(checkIsPathAbsolute(arg1));
 
-          const createFile = await create(currentPath, arg);
-
-          console.log(createFile);
-          console.log(complitePathText);
+          showResult(createFile);
         }
 
         break;
 
       case 'cat':
-        if (line.split(' ').length < 2 || line.split(' ')[1] === '') {
-          console.log('Operation failed\n' + complitePathText);
+        if (checkCommandArgsLength(2)) {
+          showError();
         } else {
-          const arg = line.split(' ').slice(1)[0];
+          const readFile = await cat(checkIsPathAbsolute(arg1));
 
-          if (arg.startsWith('/')) {
-            const readFile = await cat(arg);
-            console.log(readFile);
-            console.log(complitePathText);
-          } else {
-            const readFile = await cat(currentPath + '/' + arg);
-            console.log(readFile);
-            console.log(complitePathText);
-          }
+          showResult(readFile);
         }
         break;
 
       case 'os':
-        if (line.split(' ').length < 2 || line.split(' ')[1] === '') {
-          console.log('Operation failed\n' + complitePathText);
+        if (checkCommandArgsLength(2)) {
+          showError();
         } else {
-          const arg = line.split(' ').slice(1)[0].split('--')[1];
-
-          osInfo(arg);
-          console.log(complitePathText);
+          showResult(osInfo(arg1));
         }
 
         break;
 
       case 'hash':
-        if (line.split(' ').length < 2 || line.split(' ')[1] === '') {
-          console.log('Operation failed\n' + complitePathText);
+        if (checkCommandArgsLength(2)) {
+          showError();
         } else {
-          const arg = line.split(' ').slice(1)[0];
+          const hash = await calculateHash(checkIsPathAbsolute(arg1));
 
-          if (arg.startsWith('/')) {
-            const hash = await calculateHash(arg);
-            console.log(hash);
-            console.log(complitePathText);
-          } else {
-            const hash = await calculateHash(currentPath + '/' + arg);
-
-            console.log(hash);
-            console.log(complitePathText);
-          }
+          showResult(hash);
         }
         break;
 
       case 'cd':
-        if (line.split(' ').length < 2 || line.split(' ')[1] === '') {
-          console.log('Operation failed\n' + complitePathText);
+        if (checkCommandArgsLength(2)) {
+          showError();
         } else {
-          const arg = line.split(' ').slice(1);
+          const move = await cd(checkIsPathAbsolute(arg1));
 
-          const step = await cd(currentPath, arg);
-          currentPath = step.type === 'error' ? currentPath : step.result;
-          console.log(
-            step.type === 'error'
-              ? 'Operation failed\n' + complitePathText
-              : currentPathText + step.result + '\n'
-          );
+          currentPath = move === 'Operation failed' ? currentPath : move;
+
+          showResult(move);
         }
         break;
 
       case 'ls':
+        const list = await ls(currentPath);
+
         console.table(
           list.map(item => {
             return {
@@ -196,26 +161,26 @@ const fileManager = async () => {
           })
         );
 
-        console.log(currentPathText + currentPath + '\n');
+        process.stdout.write(`${complitePathText(currentPath)}\n`);
         break;
 
       case 'up':
         currentPath = up(currentPath);
-        console.log(currentPathText + currentPath + '\n');
+        process.stdout.write(`${complitePathText(currentPath)}\n`);
         break;
 
       case '.exit':
-        console.log(exitText);
+        process.stdout.write(exitText);
         process.exit();
 
       default:
-        console.log('Invalid input\n');
+        process.stdout.write('Invalid input\n\n');
         break;
     }
   });
 
   process.on('SIGINT', () => {
-    console.log('\n' + exitText);
+    process.stdout.write('\n' + exitText);
     process.exit(0);
   });
 };

@@ -1,35 +1,35 @@
 import { createHash } from 'node:crypto';
 import { createReadStream } from 'node:fs';
-import { getItemInfo } from '../../utils.js';
+import { getItemInfo, outputMessages } from '../../utils.js';
 
 const calculateHash = async path => {
   const itemInfo = await getItemInfo(path);
 
   if (itemInfo.Type !== 'file') {
-    return 'Operation failed';
+    return outputMessages.error;
   }
 
-  const hash = createHash('sha256');
+  try {
+    const hash = createHash('sha256');
 
-  const stream = createReadStream(path);
+    const stream = createReadStream(path);
 
-  const set = new Set();
-
-  stream.on('data', chunk => {
-    hash.update(chunk);
-  });
-
-  const promise = new Promise((resolve, reject) => {
-    stream.on('end', () => {
-      resolve(hash.digest('hex'));
+    stream.on('data', chunk => {
+      hash.update(chunk);
     });
-  });
 
-  set.add(promise);
+    const promise = await new Promise((resolve, reject) => {
+      stream.on('end', () => {
+        resolve(hash.digest('hex'));
+      });
+    });
 
-  const result = await Promise.allSettled(set);
+    const result = promise;
 
-  return result[0].value;
+    return result;
+  } catch (error) {
+    return outputMessages.error;
+  }
 };
 
 export default calculateHash;
