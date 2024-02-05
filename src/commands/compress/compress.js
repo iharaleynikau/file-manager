@@ -5,11 +5,13 @@ import { getItemInfo, outputMessages } from '../../utils.js';
 
 const compress = async (filePath, pathToCompress) => {
   const fileInfo = await getItemInfo(filePath);
-  pathToCompress = path.join(pathToCompress, path.basename(filePath) + '.br');
+  const pathToCompressInfo = await getItemInfo(pathToCompress);
 
-  if (fileInfo.Type !== 'file') {
+  if (fileInfo.Type !== 'file' || pathToCompressInfo.Type === null || path.extname(filePath) === '.br') {
     return outputMessages.error;
   }
+
+  pathToCompress = path.join(pathToCompress, path.basename(filePath) + '.br');
 
   try {
     const readStream = createReadStream(filePath);

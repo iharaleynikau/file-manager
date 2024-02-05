@@ -5,16 +5,16 @@ import { getItemInfo, outputMessages } from '../../utils.js';
 
 const decompress = async (filePath, pathToDecompress) => {
   const fileInfo = await getItemInfo(filePath);
+
+  const pathToDecompressInfo = await getItemInfo(pathToDecompress);
+
   const decompressedFilePath = path.basename(filePath).split('.');
-  pathToDecompress = path.join(pathToDecompress, decompressedFilePath.slice(0, -1).join('.'));
 
-  console.log(filePath);
-  console.log(decompressedFilePath);
-  console.log(pathToDecompress);
-
-  if (fileInfo.Type !== 'file') {
+  if (fileInfo.Type !== 'file' || pathToDecompressInfo.Type === null || path.extname(filePath) !== '.br') {
     return outputMessages.error;
   }
+
+  pathToDecompress = path.join(pathToDecompress, decompressedFilePath.slice(0, -1).join('.'));
 
   try {
     const readStream = createReadStream(filePath);
